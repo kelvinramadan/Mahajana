@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPK Alokasi Sumber Daya Pertanian</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2e8b57, #228b22);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            border-color: #2e8b57;
+            outline: none;
+        }
+
+        .criteria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            background: #2e8b57;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #228b22;
+        }
+
+        .btn-secondary {
+            background: #17a2b8;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #138496;
+        }
+
+        .results {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .ranking {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .ranking-box {
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #2e8b57;
+        }
+
+        .rank-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .rank-item:last-child {
+            border-bottom: none;
+        }
+
+        .recommendation {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            margin-top: 20px;
+        }
+
+        .method-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #2e8b57;
+            color: white;
+            border-color: #2e8b57;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistem Pendukung Keputusan</h1>
+            <p>Alokasi Sumber Daya Pertanian untuk Ketahanan Pangan Desa</p>
+        </header>
+
+        <div class="input-section">
+            <h2>Input Data Komoditas</h2>
+            <p>Masukkan data untuk setiap komoditas pertanian yang akan dievaluasi:</p>
+            
+            <div class="form-group">
+                <label>Pilih Komoditas:</label>
+                <select id="komoditas">
+                    <option value="padi">Padi</option>
+                    <option value="jagung">Jagung</option>
+                    <option value="singkong">Singkong</option>
+                    <option value="kacang_tanah">Kacang Tanah</option>
+                    <option value="cabai">Cabai</option>
+                    <option value="sayuran">Sayuran Daun</option>
+                </select>
+            </div>
+
+            <div class="criteria-grid">
+                <div class="form-group">
+                    <label>Luas Lahan (ha):</label>
+                    <input type="number" id="luas_lahan" placeholder="Contoh: 50">
+                </div>
+                <div class="form-group">
+                    <label>Produktivitas (ton/ha):</label>
+                    <input type="number" step="0.1" id="produktivitas" placeholder="Contoh: 5.5">
+                </div>
+                <div class="form-group">
+                    <label>Nilai Jual (Rp/kg):</label>
+                    <input type="number" id="nilai_jual" placeholder="Contoh: 5000">
+                </div>
+                <div class="form-group">
+                    <label>SDM Tersedia (orang):</label>
+                    <input type="number" id="sdm" placeholder="Contoh: 25">
+                </div>
+                <div class="form-group">
+                    <label>Kebutuhan Pasar (%):</label>
+                    <input type="number" id="pasar" placeholder="Contoh: 80">
+                </div>
+                <div class="form-group">
+                    <label>Potensi Produk Turunan (1-5):</label>
+                    <input type="number" min="1" max="5" id="produk_turunan" placeholder="Contoh: 3">
+                </div>
+                <div class="form-group">
+                    <label>Biaya Produksi (Rp/ha):</label>
+                    <input type="number" id="biaya_produksi" placeholder="Contoh: 8000000">
+                </div>
+            </div>
+
+            <button class="btn" onclick="tambahData()">Tambah Data</button>
+            <button class="btn btn-secondary" onclick="hitungSPK()">Hitung SPK</button>
+            <button class="btn btn-secondary" onclick="resetData()">Reset</button>
+        </div>
+
+        <div id="dataTable" style="display: none;">
+            <div class="input-section">
+                <h3>Data yang Telah Diinput</h3>
+                <table id="inputTable">
+                    <thead>
+                        <tr>
+                            <th>Komoditas</th>
+                            <th>Lahan (ha)</th>
+                            <th>Produktivitas</th>
+                            <th>Nilai Jual</th>
+                            <th>SDM</th>
+                            <th>Pasar (%)</th>
+                            <th>Produk Turunan</th>
+                            <th>Biaya Produksi</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <h2>Hasil Analisis SPK</h2>
+            
+            <div class="method-tabs">
+                <div class="tab active" onclick="showTab('saw')">Metode SAW</div>
+                <div class="tab" onclick="showTab('topsis')">Metode TOPSIS</div>
+            </div>
+
+            <div id="saw-content" class="tab-content active">
+                <h3>Simple Additive Weighting (SAW)</h3>
+                <div class="ranking">
+                    <div class="ranking-box">
+                        <h4>Peringkat Komoditas</h4>
+                        <div id="saw-ranking"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="topsis-content" class="tab-content">
+                <h3>TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)</h3>
+                <div class="ranking">
+                    <div class="ranking-box">
+                        <h4>Peringkat Komoditas</h4>
+                        <div id="topsis-ranking"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recommendation">
+                <h3>Rekomendasi</h3>
+                <div id="recommendation-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let dataKomoditas = [];
+        
+        // Bobot kriteria sesuai dengan tugas
+        const bobot = {
+            luas_lahan: 0.15,
+            produktivitas: 0.20,
+            nilai_jual: 0.15,
+            sdm: 0.10,
+            pasar: 0.15,
+            produk_turunan: 0.15,
+            biaya_produksi: 0.10
+        };
+
+        // Sifat kriteria (benefit/cost)
+        const sifatKriteria = {
+            luas_lahan: 'benefit',
+            produktivitas: 'benefit',
+            nilai_jual: 'benefit',
+            sdm: 'benefit',
+            pasar: 'benefit',
+            produk_turunan: 'benefit',
+            biaya_produksi: 'cost'
+        };
+
+        function tambahData() {
+            const komoditas = document.getElementById('komoditas').value;
+            const luas_lahan = parseFloat(document.getElementById('luas_lahan').value);
+            const produktivitas = parseFloat(document.getElementById('produktivitas').value);
+            const nilai_jual = parseFloat(document.getElementById('nilai_jual').value);
+            const sdm = parseFloat(document.getElementById('sdm').value);
+            const pasar = parseFloat(document.getElementById('pasar').value);
+            const produk_turunan = parseFloat(document.getElementById('produk_turunan').value);
+            const biaya_produksi = parseFloat(document.getElementById('biaya_produksi').value);
+
+            // Validasi input
+            if (!luas_lahan || !produktivitas || !nilai_jual || !sdm || !pasar || !produk_turunan || !biaya_produksi) {
+                alert('Mohon lengkapi semua data!');
+                return;
+            }
+
+            // Cek apakah komoditas sudah ada
+            const existingIndex = dataKomoditas.findIndex(item => item.komoditas === komoditas);
+            
+            const newData = {
+                komoditas,
+                luas_lahan,
+                produktivitas,
+                nilai_jual,
+                sdm,
+                pasar,
+                produk_turunan,
+                biaya_produksi
+            };
+
+            if (existingIndex >= 0) {
+                dataKomoditas[existingIndex] = newData;
+            } else {
+                dataKomoditas.push(newData);
+            }
+
+            updateTable();
+            clearInputs();
+        }
+
+        function updateTable() {
+            const tableBody = document.querySelector('#inputTable tbody');
+            tableBody.innerHTML = '';
+
+            dataKomoditas.forEach(data => {
+                const row = `
+                    <tr>
+                        <td>${data.komoditas}</td>
+                        <td>${data.luas_lahan}</td>
+                        <td>${data.produktivitas}</td>
+                        <td>${data.nilai_jual.toLocaleString()}</td>
+                        <td>${data.sdm}</td>
+                        <td>${data.pasar}</td>
+                        <td>${data.produk_turunan}</td>
+                        <td>${data.biaya_produksi.toLocaleString()}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+
+            document.getElementById('dataTable').style.display = 'block';
+        }
+
+        function clearInputs() {
+            document.getElementById('luas_lahan').value = '';
+            document.getElementById('produktivitas').value = '';
+            document.getElementById('nilai_jual').value = '';
+            document.getElementById('sdm').value = '';
+            document.getElementById('pasar').value = '';
+            document.getElementById('produk_turunan').value = '';
+            document.getElementById('biaya_produksi').value = '';
+        }
+
+        function resetData() {
+            dataKomoditas = [];
+            document.getElementById('dataTable').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+            clearInputs();
+        }
+
+        function hitungSPK() {
+            if (dataKomoditas.length < 2) {
+                alert('Minimal input 2 komoditas untuk perhitungan!');
+                return;
+            }
+
+            const hasilSAW = hitungSAW();
+            const hasilTOPSIS = hitungTOPSIS();
+
+            tampilkanHasil(hasilSAW, hasilTOPSIS);
+        }
+
+        function hitungSAW() {
+            // Normalisasi matriks
+            const matriks = [];
+            const kriteria = ['luas_lahan', 'produktivitas', 'nilai_jual', 'sdm', 'pasar', 'produk_turunan', 'biaya_produksi'];
+            
+            // Cari nilai max dan min untuk setiap kriteria
+            const maxMin = {};
+            kriteria.forEach(k => {
+                const values = dataKomoditas.map(d => d[k]);
+                maxMin[k] = {
+                    max: Math.max(...values),
+                    min: Math.min(...values)
+                };
+            });
+
+            // Normalisasi
+            dataKomoditas.forEach(data => {
+                const normalized = {};
+                kriteria.forEach(k => {
+                    if (sifatKriteria[k] === 'benefit') {
+                        normalized[k] = data[k] / maxMin[k].max;
+                    } else {
+                        normalized[k] = maxMin[k].min / data[k];
+                    }
+                });
+                matriks.push(normalized);
+            });
+
+            // Hitung nilai preferensi
+            const hasil = [];
+            matriks.forEach((row, index) => {
+                let total = 0;
+                kriteria.forEach(k => {
+                    total += row[k] * bobot[k];
+                });
+                hasil.push({
+                    komoditas: dataKomoditas[index].komoditas,
+                    nilai: total
+                });
+            });
+
+            // Urutkan hasil
+            hasil.sort((a, b) => b.nilai - a.nilai);
+            
+            return hasil;
+        }
+
+        function hitungTOPSIS() {
+            const kriteria = ['luas_lahan', 'produktivitas', 'nilai_jual', 'sdm', 'pasar', 'produk_turunan', 'biaya_produksi'];
+            
+            // Normalisasi dengan akar kuadrat
+            const matriks = [];
+            const sumSquares = {};
+            
+            // Hitung sum of squares untuk setiap kriteria
+            kriteria.forEach(k => {
+                sumSquares[k] = Math.sqrt(dataKomoditas.reduce((sum, data) => sum + Math.pow(data[k], 2), 0));
+            });
+
+            // Normalisasi
+            dataKomoditas.forEach(data => {
+                const normalized = {};
+                kriteria.forEach(k => {
+                    normalized[k] = data[k] / sumSquares[k];
+                });
+                matriks.push(normalized);
+            });
+
+            // Matriks berbobot
+            const matriksBobot = [];
+            matriks.forEach(row => {
+                const weighted = {};
+                kriteria.forEach(k => {
+                    weighted[k] = row[k] * bobot[k];
+                });
+                matriksBobot.push(weighted);
+            });
+
+            // Solusi ideal positif dan negatif
+            const idealPositif = {};
+            const idealNegatif = {};
+            
+            kriteria.forEach(k => {
+                const values = matriksBobot.map(row => row[k]);
+                if (sifatKriteria[k] === 'benefit') {
+                    idealPositif[k] = Math.max(...values);
+                    idealNegatif[k] = Math.min(...values);
+                } else {
+                    idealPositif[k] = Math.min(...values);
+                    idealNegatif[k] = Math.max(...values);
+                }
+            });
+
+            // Hitung jarak ke solusi ideal
+            const hasil = [];
+            matriksBobot.forEach((row, index) => {
+                let jarakPositif = 0;
+                let jarakNegatif = 0;
+                
+                kriteria.forEach(k => {
+                    jarakPositif += Math.pow(row[k] - idealPositif[k], 2);
+                    jarakNegatif += Math.pow(row[k] - idealNegatif[k], 2);
+                });
+
+                jarakPositif = Math.sqrt(jarakPositif);
+                jarakNegatif = Math.sqrt(jarakNegatif);
+
+                const preferensi = jarakNegatif / (jarakPositif + jarakNegatif);
+                
+                hasil.push({
+                    komoditas: dataKomoditas[index].komoditas,
+                    nilai: preferensi
+                });
+            });
+
+            // Urutkan hasil
+            hasil.sort((a, b) => b.nilai - a.nilai);
+            
+            return hasil;
+        }
+
+        function tampilkanHasil(hasilSAW, hasilTOPSIS) {
+            // Tampilkan hasil SAW
+            const sawRanking = document.getElementById('saw-ranking');
+            sawRanking.innerHTML = '';
+            hasilSAW.forEach((item, index) => {
+                sawRanking.innerHTML += `
+                    <div class="rank-item">
+                        <span>${index + 1}. ${item.komoditas}</span>
+                        <span>${item.nilai.toFixed(4)}</span>
+                    </div>
+                `;
+            });
+
+            // Tampilkan hasil TOPSIS
+            const topsisRanking = document.getElementById('topsis-ranking');
+            topsisRanking.innerHTML = '';
+            hasilTOPSIS.forEach((item, index) => {
+                topsisRanking.innerHTML += `
+                    <div class="rank-item">
+                        <span>${index + 1}. ${item.komoditas}</span>
+                        <span>${item.nilai.toFixed(4)}</span>
+                    </div>
+                `;
+            });
+
+            // Rekomendasi
+            const rekomendasi = document.getElementById('recommendation-text');
+            rekomendasi.innerHTML = `
+                <p><strong>Berdasarkan analisis SAW:</strong> ${hasilSAW[0].komoditas} adalah prioritas utama dengan skor ${hasilSAW[0].nilai.toFixed(4)}</p>
+                <p><strong>Berdasarkan analisis TOPSIS:</strong> ${hasilTOPSIS[0].komoditas} adalah prioritas utama dengan skor ${hasilTOPSIS[0].nilai.toFixed(4)}</p>
+                <p><strong>Rekomendasi:</strong> Disarankan untuk mengembangkan ${hasilSAW[0].komoditas} dan ${hasilTOPSIS[0].komoditas} sebagai prioritas utama dalam alokasi sumber daya pertanian desa.</p>
+            `;
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function showTab(method) {
+            // Hapus active class dari semua tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Tambah active class ke tab yang dipilih
+            event.target.classList.add('active');
+            document.getElementById(method + '-content').classList.add('active');
+        }
+    </script>
+</body>
+</html>
