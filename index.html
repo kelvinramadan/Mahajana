@@ -11,12 +11,29 @@
         <header>
             <h1>Sistem Pendukung Keputusan</h1>
             <p>Alokasi Sumber Daya Pertanian untuk Ketahanan Pangan Desa</p>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin-top: 15px; text-align: left;">
+                <h4 style="margin: 0 0 10px 0;">Latar Belakang:</h4>
+                <p style="margin: 0; font-size: 14px;">Desa sering menghadapi kesulitan dalam menentukan komoditas pertanian yang optimal untuk dikembangkan karena keterbatasan sumber daya (lahan, SDM, anggaran). Sistem ini menggunakan metode SAW dan TOPSIS untuk memberikan rekomendasi berbasis data yang objektif.</p>
+            </div>
         </header>
 
         <!-- Input Bobot Kriteria -->
         <div class="section">
             <h2>1. Tentukan Bobot Kriteria</h2>
             <p>Tentukan bobot untuk setiap kriteria dalam persen (total harus 100%):</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <h4>Penjelasan Kriteria:</h4>
+                <ul style="margin: 0; padding-left: 20px;">
+                    <li><strong>Luas Lahan (Benefit):</strong> Semakin luas, semakin baik</li>
+                    <li><strong>Produktivitas (Benefit):</strong> Semakin tinggi hasil panen, semakin baik</li>
+                    <li><strong>Nilai Jual (Benefit):</strong> Semakin tinggi harga, semakin baik</li>
+                    <li><strong>SDM Tersedia (Benefit):</strong> Semakin banyak petani, semakin baik</li>
+                    <li><strong>Kebutuhan Pasar (Benefit):</strong> Semakin tinggi permintaan, semakin baik</li>
+                    <li><strong>Produk Turunan (Benefit):</strong> Semakin banyak olahan, semakin baik</li>
+                    <li><strong>Biaya Produksi (Cost):</strong> Semakin rendah biaya, semakin baik</li>
+                </ul>
+            </div>
             
             <div class="weight-grid">
                 <div class="form-group">
@@ -111,7 +128,11 @@
             </div>
 
             <button class="btn" onclick="tambahData()">Tambah Data</button>
+            <button class="btn btn-secondary" onclick="editData()">Edit Data Terpilih</button>
+            <button class="btn btn-secondary" onclick="exportData()">Export Data</button>
+            <button class="btn btn-secondary" onclick="importData()">Import Data</button>
             <button class="btn btn-danger" onclick="resetData()">Reset</button>
+            <input type="file" id="importFile" style="display: none;" accept=".json" onchange="handleImport()">
         </div>
 
         <!-- Tabel Data -->
@@ -121,6 +142,7 @@
                 <table id="inputTable">
                     <thead>
                         <tr>
+                            <th>Pilih</th>
                             <th>Komoditas</th>
                             <th>Lahan (ha)</th>
                             <th>Produktivitas</th>
@@ -129,6 +151,7 @@
                             <th>Pasar (%)</th>
                             <th>Produk Turunan</th>
                             <th>Biaya Produksi</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -148,6 +171,13 @@
 
             <div id="saw-content" class="tab-content active">
                 <h3>Simple Additive Weighting (SAW)</h3>
+                <p><strong>Konsep:</strong> Normalisasi nilai kemudian dikalikan bobot, alternatif dengan skor tertinggi adalah yang terbaik.</p>
+                
+                <div id="saw-calculation" style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <h4>Langkah Perhitungan SAW:</h4>
+                    <div id="saw-steps"></div>
+                </div>
+                
                 <div class="ranking">
                     <div class="ranking-box">
                         <h4>Peringkat Komoditas</h4>
@@ -158,6 +188,13 @@
 
             <div id="topsis-content" class="tab-content">
                 <h3>TOPSIS</h3>
+                <p><strong>Konsep:</strong> Mencari alternatif yang terdekat dengan solusi ideal positif dan terjauh dari solusi ideal negatif.</p>
+                
+                <div id="topsis-calculation" style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <h4>Langkah Perhitungan TOPSIS:</h4>
+                    <div id="topsis-steps"></div>
+                </div>
+                
                 <div class="ranking">
                     <div class="ranking-box">
                         <h4>Peringkat Komoditas</h4>
@@ -274,9 +311,10 @@
             const tableBody = document.querySelector('#inputTable tbody');
             tableBody.innerHTML = '';
 
-            dataKomoditas.forEach(data => {
+            dataKomoditas.forEach((data, index) => {
                 const row = `
                     <tr>
+                        <td><input type="radio" name="selectedData" value="${index}"></td>
                         <td>${data.komoditas}</td>
                         <td>${data.luas_lahan}</td>
                         <td>${data.produktivitas}</td>
@@ -285,12 +323,103 @@
                         <td>${data.pasar}</td>
                         <td>${data.produk_turunan}</td>
                         <td>${data.biaya_produksi.toLocaleString()}</td>
+                        <td><button class="btn btn-danger" onclick="hapusData(${index})" style="padding: 5px 10px; font-size: 12px;">Hapus</button></td>
                     </tr>
                 `;
                 tableBody.innerHTML += row;
             });
 
             document.getElementById('dataTable').style.display = 'block';
+        }
+
+        function editData() {
+            const selected = document.querySelector('input[name="selectedData"]:checked');
+            if (!selected) {
+                alert('Pilih data yang akan diedit!');
+                return;
+            }
+            
+            const index = parseInt(selected.value);
+            const data = dataKomoditas[index];
+            
+            // Isi form dengan data yang dipilih
+            document.getElementById('komoditas').value = data.komoditas;
+            document.getElementById('luas_lahan').value = data.luas_lahan;
+            document.getElementById('produktivitas').value = data.produktivitas;
+            document.getElementById('nilai_jual').value = data.nilai_jual;
+            document.getElementById('sdm').value = data.sdm;
+            document.getElementById('pasar').value = data.pasar;
+            document.getElementById('produk_turunan').value = data.produk_turunan;
+            document.getElementById('biaya_produksi').value = data.biaya_produksi;
+        }
+
+        function hapusData(index) {
+            if (confirm('Yakin ingin menghapus data ini?')) {
+                dataKomoditas.splice(index, 1);
+                updateTable();
+                if (dataKomoditas.length === 0) {
+                    document.getElementById('dataTable').style.display = 'none';
+                }
+            }
+        }
+
+        function exportData() {
+            if (dataKomoditas.length === 0) {
+                alert('Tidak ada data untuk diexport!');
+                return;
+            }
+            
+            const dataToExport = {
+                bobot: getBobot(),
+                komoditas: dataKomoditas
+            };
+            
+            const dataStr = JSON.stringify(dataToExport, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'data_spk_pertanian.json';
+            link.click();
+        }
+
+        function importData() {
+            document.getElementById('importFile').click();
+        }
+
+        function handleImport() {
+            const file = document.getElementById('importFile').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Set bobot
+                    if (data.bobot) {
+                        document.getElementById('bobot_luas_lahan').value = data.bobot.luas_lahan * 100;
+                        document.getElementById('bobot_produktivitas').value = data.bobot.produktivitas * 100;
+                        document.getElementById('bobot_nilai_jual').value = data.bobot.nilai_jual * 100;
+                        document.getElementById('bobot_sdm').value = data.bobot.sdm * 100;
+                        document.getElementById('bobot_pasar').value = data.bobot.pasar * 100;
+                        document.getElementById('bobot_produk_turunan').value = data.bobot.produk_turunan * 100;
+                        document.getElementById('bobot_biaya_produksi').value = data.bobot.biaya_produksi * 100;
+                        updateTotalBobot();
+                    }
+                    
+                    // Set data komoditas
+                    if (data.komoditas) {
+                        dataKomoditas = data.komoditas;
+                        updateTable();
+                    }
+                    
+                    alert('Data berhasil diimport!');
+                } catch (error) {
+                    alert('File tidak valid!');
+                }
+            };
+            reader.readAsText(file);
         }
 
         function clearInputs() {
@@ -444,7 +573,77 @@
             return hasil;
         }
 
+        function buatRekomendasi(hasilSAW, hasilTOPSIS) {
+            // 1. Analisis konsistensi top 3
+            const top3SAW = hasilSAW.slice(0, 3).map(h => h.komoditas);
+            const top3TOPSIS = hasilTOPSIS.slice(0, 3).map(h => h.komoditas);
+            const intersection = top3SAW.filter(k => top3TOPSIS.includes(k));
+            
+            // 2. Hitung gap skor antara #1 dan #2
+            const gapSAW = hasilSAW[0].nilai - hasilSAW[1].nilai;
+            const gapTOPSIS = hasilTOPSIS[0].nilai - hasilTOPSIS[1].nilai;
+            
+            // 3. Tentukan tingkat kepercayaan
+            let tingkatKepercayaan = '';
+            let strategiAlokasi = '';
+            
+            if (hasilSAW[0].komoditas === hasilTOPSIS[0].komoditas) {
+                if (gapSAW > 0.1 && gapTOPSIS > 0.1) {
+                    tingkatKepercayaan = 'SANGAT TINGGI';
+                    strategiAlokasi = `Fokus dominan pada ${hasilSAW[0].komoditas} (70-80% sumber daya)`;
+                } else {
+                    tingkatKepercayaan = 'TINGGI';
+                    strategiAlokasi = `Prioritas utama ${hasilSAW[0].komoditas} (60-70% sumber daya)`;
+                }
+            } else if (intersection.length >= 2) {
+                tingkatKepercayaan = 'SEDANG';
+                strategiAlokasi = `Diversifikasi antara ${intersection[0]} dan ${intersection[1]} (40-40% sumber daya masing-masing)`;
+            } else {
+                tingkatKepercayaan = 'RENDAH';
+                strategiAlokasi = `Perlu analisis lebih lanjut. Pertimbangkan ${hasilSAW[0].komoditas}, ${hasilTOPSIS[0].komoditas}, dan ${hasilSAW[1].komoditas}`;
+            }
+            
+            // 4. Analisis risiko
+            let analisisRisiko = '';
+            const komoditasRisiko = dataKomoditas.find(k => k.komoditas === hasilSAW[0].komoditas);
+            if (komoditasRisiko) {
+                if (komoditasRisiko.biaya_produksi > 10000000) {
+                    analisisRisiko = 'PERHATIAN: Biaya produksi tinggi, pastikan anggaran mencukupi.';
+                } else if (komoditasRisiko.pasar < 50) {
+                    analisisRisiko = 'PERHATIAN: Permintaan pasar rendah, pertimbangkan strategi pemasaran.';
+                } else {
+                    analisisRisiko = 'Risiko relatif rendah untuk implementasi.';
+                }
+            }
+            
+            return {
+                tingkatKepercayaan,
+                strategiAlokasi,
+                analisisRisiko,
+                komoditasKonsisten: intersection
+            };
+        }
+
         function tampilkanHasil(hasilSAW, hasilTOPSIS) {
+            // Tampilkan langkah perhitungan SAW
+            const sawSteps = document.getElementById('saw-steps');
+            sawSteps.innerHTML = `
+                <p><strong>1. Normalisasi:</strong> Untuk kriteria benefit: nilai/max, untuk cost: min/nilai</p>
+                <p><strong>2. Perkalian bobot:</strong> Hasil normalisasi × bobot kriteria</p>
+                <p><strong>3. Penjumlahan:</strong> Total semua nilai berbobot per alternatif</p>
+                <p><strong>4. Perangkingan:</strong> Urutkan dari nilai tertinggi ke terendah</p>
+            `;
+
+            // Tampilkan langkah perhitungan TOPSIS
+            const topsisSteps = document.getElementById('topsis-steps');
+            topsisSteps.innerHTML = `
+                <p><strong>1. Normalisasi:</strong> nilai/√(Σnilai²)</p>
+                <p><strong>2. Matriks berbobot:</strong> Hasil normalisasi × bobot</p>
+                <p><strong>3. Solusi ideal:</strong> Cari nilai terbaik (A+) dan terburuk (A-)</p>
+                <p><strong>4. Jarak euclidean:</strong> Hitung jarak ke A+ dan A-</p>
+                <p><strong>5. Preferensi:</strong> Ci = d-/(d+ + d-)</p>
+            `;
+
             // Tampilkan hasil SAW
             const sawRanking = document.getElementById('saw-ranking');
             sawRanking.innerHTML = '';
@@ -469,12 +668,35 @@
                 `;
             });
 
-            // Rekomendasi
+            // Generate rekomendasi yang lebih sophisticated
+            const rekomen = buatRekomendasi(hasilSAW, hasilTOPSIS);
+            
             const rekomendasi = document.getElementById('recommendation-text');
             rekomendasi.innerHTML = `
-                <p><strong>Metode SAW:</strong> ${hasilSAW[0].komoditas} adalah prioritas utama (skor: ${hasilSAW[0].nilai.toFixed(4)})</p>
-                <p><strong>Metode TOPSIS:</strong> ${hasilTOPSIS[0].komoditas} adalah prioritas utama (skor: ${hasilTOPSIS[0].nilai.toFixed(4)})</p>
-                <p><strong>Rekomendasi:</strong> Berdasarkan kedua metode, disarankan mengembangkan ${hasilSAW[0].komoditas} sebagai prioritas utama.</p>
+                <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <h4>Analisis Hasil</h4>
+                    <p><strong>SAW Winner:</strong> ${hasilSAW[0].komoditas} (${hasilSAW[0].nilai.toFixed(4)})</p>
+                    <p><strong>TOPSIS Winner:</strong> ${hasilTOPSIS[0].komoditas} (${hasilTOPSIS[0].nilai.toFixed(4)})</p>
+                    <p><strong>Tingkat Kepercayaan:</strong> ${rekomen.tingkatKepercayaan}</p>
+                </div>
+                
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <h4>Strategi Alokasi Sumber Daya</h4>
+                    <p>${rekomen.strategiAlokasi}</p>
+                </div>
+                
+                <div style="background: #f8d7da; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <h4>Analisis Risiko</h4>
+                    <p>${rekomen.analisisRisiko}</p>
+                </div>
+                
+                <div style="background: #d1ecf1; padding: 15px; border-radius: 8px;">
+                    <h4>Saran Implementasi</h4>
+                    <p>• Lakukan survei mendalam terhadap komoditas prioritas</p>
+                    <p>• Siapkan program pelatihan untuk petani</p>
+                    <p>• Evaluasi ulang setiap 6 bulan dengan data terbaru</p>
+                    <p>• Pertimbangkan faktor musim dan iklim dalam implementasi</p>
+                </div>
             `;
 
             document.getElementById('results').style.display = 'block';
