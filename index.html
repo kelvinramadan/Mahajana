@@ -4,187 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPK Alokasi Sumber Daya Pertanian</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            background: linear-gradient(135deg, #2e8b57, #228b22);
-            color: white;
-            text-align: center;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
-
-        .input-section {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        input:focus, select:focus {
-            border-color: #2e8b57;
-            outline: none;
-        }
-
-        .criteria-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .btn {
-            background: #2e8b57;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s;
-        }
-
-        .btn:hover {
-            background: #228b22;
-        }
-
-        .btn-secondary {
-            background: #17a2b8;
-            margin-left: 10px;
-        }
-
-        .btn-secondary:hover {
-            background: #138496;
-        }
-
-        .results {
-            display: none;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-top: 30px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            color: #555;
-        }
-
-        .ranking {
-            display: flex;
-            gap: 30px;
-            margin: 20px 0;
-        }
-
-        .ranking-box {
-            flex: 1;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #2e8b57;
-        }
-
-        .rank-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .rank-item:last-child {
-            border-bottom: none;
-        }
-
-        .recommendation {
-            background: #e8f5e8;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #28a745;
-            margin-top: 20px;
-        }
-
-        .method-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .tab {
-            padding: 10px 20px;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .tab.active {
-            background: #2e8b57;
-            color: white;
-            border-color: #2e8b57;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-    </style>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
     <div class="container">
@@ -193,9 +13,52 @@
             <p>Alokasi Sumber Daya Pertanian untuk Ketahanan Pangan Desa</p>
         </header>
 
-        <div class="input-section">
-            <h2>Input Data Komoditas</h2>
-            <p>Masukkan data untuk setiap komoditas pertanian yang akan dievaluasi:</p>
+        <!-- Input Bobot Kriteria -->
+        <div class="section">
+            <h2>1. Tentukan Bobot Kriteria</h2>
+            <p>Tentukan bobot untuk setiap kriteria dalam persen (total harus 100%):</p>
+            
+            <div class="weight-grid">
+                <div class="form-group">
+                    <label>Luas Lahan (%):</label>
+                    <input type="number" id="bobot_luas_lahan" value="15" min="0" max="100" onchange="updateTotalBobot()">
+                </div>
+                <div class="form-group">
+                    <label>Produktivitas (%):</label>
+                    <input type="number" id="bobot_produktivitas" value="20" min="0" max="100" onchange="updateTotalBobot()">
+                </div>
+                <div class="form-group">
+                    <label>Nilai Jual (%):</label>
+                    <input type="number" id="bobot_nilai_jual" value="15" min="0" max="100" onchange="updateTotalBobot()">
+                </div>
+                <div class="form-group">
+                    <label>SDM Tersedia (%):</label>
+                    <input type="number" id="bobot_sdm" value="10" min="0" max="100" onchange="updateTotalBobot()">
+                </div>
+                <div class="form-group">
+                    <label>Kebutuhan Pasar (%):</label>
+                    <input type="number" id="bobot_pasar" value="15" min="0" max="100" onchange="updateTotalBobot()">
+                </div>
+                <div class="form-group">
+                    <label>Produk Turunan (%):</label>
+                    <input type="number" id="bobot_produk_turunan" value="15" min="0" max="100" onchange="updateTotalBobot()">
+                </div>
+                <div class="form-group">
+                    <label>Biaya Produksi (%):</label>
+                    <input type="number" id="bobot_biaya_produksi" value="10" min="0" max="100" onchange="updateTotalBobot()">
+                </div>
+            </div>
+
+            <div class="weight-display">
+                <strong>Total Bobot: <span id="total_bobot">100</span>%</strong>
+                <div id="bobot_error" class="error" style="display: none;">Total bobot harus 100%</div>
+            </div>
+        </div>
+
+        <!-- Input Data Alternatif -->
+        <div class="section">
+            <h2>2. Input Data Alternatif</h2>
+            <p>Masukkan data untuk setiap komoditas pertanian:</p>
             
             <div class="form-group">
                 <label>Pilih Komoditas:</label>
@@ -212,49 +75,49 @@
             <div class="criteria-grid">
                 <div class="form-group">
                     <label>Luas Lahan (ha):</label>
-                    <small style="color: #666; font-size: 12px;">Berapa luas area (dalam hektar) yang tersedia untuk menanam komoditas ini? 1 ha = 10,000 m²</small>
+                    <small>Luas area yang tersedia untuk komoditas ini</small>
                     <input type="number" id="luas_lahan" placeholder="Contoh: 50">
                 </div>
                 <div class="form-group">
                     <label>Produktivitas (ton/ha):</label>
-                    <small style="color: #666; font-size: 12px;">Berapa ton hasil panen yang bisa dihasilkan per 1 hektar lahan?</small>
+                    <small>Hasil panen per hektar</small>
                     <input type="number" step="0.1" id="produktivitas" placeholder="Contoh: 5.5">
                 </div>
                 <div class="form-group">
                     <label>Nilai Jual (Rp/kg):</label>
-                    <small style="color: #666; font-size: 12px;">Berapa harga jual per kilogram komoditas ini di pasar lokal?</small>
+                    <small>Harga jual per kilogram</small>
                     <input type="number" id="nilai_jual" placeholder="Contoh: 5000">
                 </div>
                 <div class="form-group">
                     <label>SDM Tersedia (orang):</label>
-                    <small style="color: #666; font-size: 12px;">Berapa jumlah petani/pekerja yang tersedia untuk mengelola komoditas ini?</small>
+                    <small>Jumlah petani yang tersedia</small>
                     <input type="number" id="sdm" placeholder="Contoh: 25">
                 </div>
                 <div class="form-group">
                     <label>Kebutuhan Pasar (%):</label>
-                    <small style="color: #666; font-size: 12px;">Seberapa besar permintaan masyarakat desa terhadap komoditas ini? (0-100%)</small>
+                    <small>Permintaan masyarakat (0-100%)</small>
                     <input type="number" id="pasar" placeholder="Contoh: 80">
                 </div>
                 <div class="form-group">
                     <label>Potensi Produk Turunan (1-5):</label>
-                    <small style="color: #666; font-size: 12px;">Seberapa banyak produk olahan yang bisa dibuat? 1=sedikit, 5=banyak (misal: keripik, tepung, dll)</small>
+                    <small>Banyaknya produk olahan yang bisa dibuat</small>
                     <input type="number" min="1" max="5" id="produk_turunan" placeholder="Contoh: 3">
                 </div>
                 <div class="form-group">
                     <label>Biaya Produksi (Rp/ha):</label>
-                    <small style="color: #666; font-size: 12px;">Total biaya yang dibutuhkan untuk menanam 1 hektar (bibit, pupuk, pestisida, dll)</small>
+                    <small>Total biaya produksi per hektar</small>
                     <input type="number" id="biaya_produksi" placeholder="Contoh: 8000000">
                 </div>
             </div>
 
             <button class="btn" onclick="tambahData()">Tambah Data</button>
-            <button class="btn btn-secondary" onclick="hitungSPK()">Hitung SPK</button>
-            <button class="btn btn-secondary" onclick="resetData()">Reset</button>
+            <button class="btn btn-danger" onclick="resetData()">Reset</button>
         </div>
 
+        <!-- Tabel Data -->
         <div id="dataTable" style="display: none;">
-            <div class="input-section">
-                <h3>Data yang Telah Diinput</h3>
+            <div class="section">
+                <h3>Data Alternatif yang Telah Diinput</h3>
                 <table id="inputTable">
                     <thead>
                         <tr>
@@ -270,11 +133,13 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+                <button class="btn btn-secondary" onclick="hitungSPK()">Hitung SPK</button>
             </div>
         </div>
 
-        <div class="results" id="results">
-            <h2>Hasil Analisis SPK</h2>
+        <!-- Hasil -->
+        <div class="results section" id="results">
+            <h2>3. Hasil Perhitungan SPK</h2>
             
             <div class="method-tabs">
                 <div class="tab active" onclick="showTab('saw')">Metode SAW</div>
@@ -292,7 +157,7 @@
             </div>
 
             <div id="topsis-content" class="tab-content">
-                <h3>TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)</h3>
+                <h3>TOPSIS</h3>
                 <div class="ranking">
                     <div class="ranking-box">
                         <h4>Peringkat Komoditas</h4>
@@ -312,17 +177,6 @@
         // Data storage
         let dataKomoditas = [];
         
-        // Bobot kriteria sesuai dengan tugas
-        const bobot = {
-            luas_lahan: 0.15,
-            produktivitas: 0.20,
-            nilai_jual: 0.15,
-            sdm: 0.10,
-            pasar: 0.15,
-            produk_turunan: 0.15,
-            biaya_produksi: 0.10
-        };
-
         // Sifat kriteria (benefit/cost)
         const sifatKriteria = {
             luas_lahan: 'benefit',
@@ -334,7 +188,49 @@
             biaya_produksi: 'cost'
         };
 
+        // Fungsi untuk mengupdate total bobot
+        function updateTotalBobot() {
+            const bobot_luas_lahan = parseFloat(document.getElementById('bobot_luas_lahan').value) || 0;
+            const bobot_produktivitas = parseFloat(document.getElementById('bobot_produktivitas').value) || 0;
+            const bobot_nilai_jual = parseFloat(document.getElementById('bobot_nilai_jual').value) || 0;
+            const bobot_sdm = parseFloat(document.getElementById('bobot_sdm').value) || 0;
+            const bobot_pasar = parseFloat(document.getElementById('bobot_pasar').value) || 0;
+            const bobot_produk_turunan = parseFloat(document.getElementById('bobot_produk_turunan').value) || 0;
+            const bobot_biaya_produksi = parseFloat(document.getElementById('bobot_biaya_produksi').value) || 0;
+            
+            const total = bobot_luas_lahan + bobot_produktivitas + bobot_nilai_jual + bobot_sdm + bobot_pasar + bobot_produk_turunan + bobot_biaya_produksi;
+            
+            document.getElementById('total_bobot').textContent = total;
+            
+            const errorDiv = document.getElementById('bobot_error');
+            if (total !== 100) {
+                errorDiv.style.display = 'block';
+            } else {
+                errorDiv.style.display = 'none';
+            }
+        }
+
+        // Fungsi untuk mendapatkan bobot saat ini
+        function getBobot() {
+            return {
+                luas_lahan: parseFloat(document.getElementById('bobot_luas_lahan').value) / 100,
+                produktivitas: parseFloat(document.getElementById('bobot_produktivitas').value) / 100,
+                nilai_jual: parseFloat(document.getElementById('bobot_nilai_jual').value) / 100,
+                sdm: parseFloat(document.getElementById('bobot_sdm').value) / 100,
+                pasar: parseFloat(document.getElementById('bobot_pasar').value) / 100,
+                produk_turunan: parseFloat(document.getElementById('bobot_produk_turunan').value) / 100,
+                biaya_produksi: parseFloat(document.getElementById('bobot_biaya_produksi').value) / 100
+            };
+        }
+
         function tambahData() {
+            // Validasi bobot terlebih dahulu
+            const totalBobot = parseFloat(document.getElementById('total_bobot').textContent);
+            if (totalBobot !== 100) {
+                alert('Total bobot harus 100% sebelum menambah data!');
+                return;
+            }
+
             const komoditas = document.getElementById('komoditas').value;
             const luas_lahan = parseFloat(document.getElementById('luas_lahan').value);
             const produktivitas = parseFloat(document.getElementById('produktivitas').value);
@@ -427,8 +323,7 @@
         }
 
         function hitungSAW() {
-            // Normalisasi matriks
-            const matriks = [];
+            const bobot = getBobot();
             const kriteria = ['luas_lahan', 'produktivitas', 'nilai_jual', 'sdm', 'pasar', 'produk_turunan', 'biaya_produksi'];
             
             // Cari nilai max dan min untuk setiap kriteria
@@ -442,6 +337,7 @@
             });
 
             // Normalisasi
+            const matriks = [];
             dataKomoditas.forEach(data => {
                 const normalized = {};
                 kriteria.forEach(k => {
@@ -474,6 +370,7 @@
         }
 
         function hitungTOPSIS() {
+            const bobot = getBobot();
             const kriteria = ['luas_lahan', 'produktivitas', 'nilai_jual', 'sdm', 'pasar', 'produk_turunan', 'biaya_produksi'];
             
             // Normalisasi dengan akar kuadrat
@@ -575,9 +472,9 @@
             // Rekomendasi
             const rekomendasi = document.getElementById('recommendation-text');
             rekomendasi.innerHTML = `
-                <p><strong>Berdasarkan analisis SAW:</strong> ${hasilSAW[0].komoditas} adalah prioritas utama dengan skor ${hasilSAW[0].nilai.toFixed(4)}</p>
-                <p><strong>Berdasarkan analisis TOPSIS:</strong> ${hasilTOPSIS[0].komoditas} adalah prioritas utama dengan skor ${hasilTOPSIS[0].nilai.toFixed(4)}</p>
-                <p><strong>Rekomendasi:</strong> Disarankan untuk mengembangkan ${hasilSAW[0].komoditas} dan ${hasilTOPSIS[0].komoditas} sebagai prioritas utama dalam alokasi sumber daya pertanian desa.</p>
+                <p><strong>Metode SAW:</strong> ${hasilSAW[0].komoditas} adalah prioritas utama (skor: ${hasilSAW[0].nilai.toFixed(4)})</p>
+                <p><strong>Metode TOPSIS:</strong> ${hasilTOPSIS[0].komoditas} adalah prioritas utama (skor: ${hasilTOPSIS[0].nilai.toFixed(4)})</p>
+                <p><strong>Rekomendasi:</strong> Berdasarkan kedua metode, disarankan mengembangkan ${hasilSAW[0].komoditas} sebagai prioritas utama.</p>
             `;
 
             document.getElementById('results').style.display = 'block';
@@ -592,6 +489,9 @@
             event.target.classList.add('active');
             document.getElementById(method + '-content').classList.add('active');
         }
+
+        // Inisialisasi
+        updateTotalBobot();
     </script>
 </body>
 </html>
